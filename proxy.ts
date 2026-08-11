@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // This refreshes the Supabase session cookie on every request and gates
 // the auth-only routes. It only reads the session (an optimistic check);
 // pages still verify with supabase.auth.getUser() themselves.
-const PROTECTED_PATHS = ["/dashboard", "/onboarding"];
+const PROTECTED_PATHS = ["/dashboard", "/onboarding", "/vehicles"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
