@@ -65,10 +65,13 @@ export default async function DashboardPage() {
                 className="flex items-center justify-between rounded border border-zinc-200 px-4 py-3"
               >
                 <div>
-                  <p className="font-medium">
+                  <Link
+                    href={`/vehicles/${vehicle.id}`}
+                    className="font-medium underline"
+                  >
                     {vehicle.nickname ||
                       `${vehicle.vehicle_models?.make} ${vehicle.vehicle_models?.model}`}
-                  </p>
+                  </Link>
                   <p className="text-sm text-zinc-600">
                     {vehicle.vehicle_models?.make} {vehicle.vehicle_models?.model}
                     {vehicle.vehicle_models?.generation
