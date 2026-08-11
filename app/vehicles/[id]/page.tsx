@@ -44,6 +44,12 @@ export default async function VehicleDetailPage({
     .select("id, name")
     .order("name");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .single();
+
   const model = vehicle.vehicle_models;
   const title =
     vehicle.nickname || `${model?.make ?? ""} ${model?.model ?? ""}`.trim();
@@ -60,12 +66,24 @@ export default async function VehicleDetailPage({
           {model?.generation ? ` (${model.generation})` : ""}
           {vehicle.year ? ` · ${vehicle.year}` : ""}
         </p>
-        <Link
-          href={`/vehicles/${vehicle.id}/edit`}
-          className="text-sm font-medium underline"
-        >
-          Edit vehicle
-        </Link>
+        <div className="mt-1 flex gap-3">
+          <Link
+            href={`/vehicles/${vehicle.id}/edit`}
+            className="text-sm font-medium underline"
+          >
+            Edit vehicle
+          </Link>
+          {profile?.username && (
+            <Link
+              href={`/builds/${profile.username}/${vehicle.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium underline"
+            >
+              View public build log
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
