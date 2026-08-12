@@ -16,6 +16,12 @@ export default function LoginPage() {
   );
 }
 
+// Native form controls default to a light background regardless of the
+// page's dark-mode text color — without an explicit pairing here too,
+// dark mode renders light text on a light control (same bug as selects).
+const FIELD_CLASSES =
+  "rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackError = searchParams.get("error");
@@ -63,7 +69,7 @@ function LoginForm() {
             name="email"
             placeholder="Email"
             required
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
+            className={FIELD_CLASSES}
           />
           <input
             type="password"
@@ -71,7 +77,7 @@ function LoginForm() {
             placeholder="Password"
             required
             minLength={6}
-            className="rounded border border-zinc-300 px-3 py-2 text-sm"
+            className={FIELD_CLASSES}
           />
           {passwordState?.error && (
             <p className="text-sm text-red-600">{passwordState.error}</p>
@@ -105,7 +111,7 @@ function LoginForm() {
           name="email"
           placeholder="Email for magic link"
           required
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
         {magicState?.error && (
           <p className="text-sm text-red-600">{magicState.error}</p>

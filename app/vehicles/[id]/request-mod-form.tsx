@@ -5,6 +5,13 @@ import { requestMod } from "./actions";
 
 type Category = { id: string; name: string };
 
+// Native form controls default to a light background regardless of the
+// page's dark-mode text color — without an explicit pairing here too,
+// dark mode renders light text on a light control.
+const FIELD_CLASSES =
+  "rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+const OPTION_CLASSES = "bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100";
+
 export function RequestModForm({ categories }: { categories: Category[] }) {
   const [state, formAction, pending] = useActionState(requestMod, undefined);
 
@@ -14,21 +21,15 @@ export function RequestModForm({ categories }: { categories: Category[] }) {
         name="name"
         placeholder="Mod name"
         required
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
+        className={FIELD_CLASSES}
       />
-      <input
-        name="brand"
-        placeholder="Brand (optional)"
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
-      />
-      <select
-        name="category_id"
-        defaultValue=""
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
-      >
-        <option value="">Category (optional)</option>
+      <input name="brand" placeholder="Brand (optional)" className={FIELD_CLASSES} />
+      <select name="category_id" defaultValue="" className={FIELD_CLASSES}>
+        <option value="" className={OPTION_CLASSES}>
+          Category (optional)
+        </option>
         {categories.map((c) => (
-          <option key={c.id} value={c.id}>
+          <option key={c.id} value={c.id} className={OPTION_CLASSES}>
             {c.name}
           </option>
         ))}
@@ -37,7 +38,7 @@ export function RequestModForm({ categories }: { categories: Category[] }) {
         name="notes"
         placeholder="Notes (optional)"
         rows={2}
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
+        className={FIELD_CLASSES}
       />
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
       {state?.message && (

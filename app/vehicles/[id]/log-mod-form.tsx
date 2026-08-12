@@ -6,6 +6,12 @@ import { ModTypeahead } from "./mod-typeahead";
 
 type SelectedMod = { id: string; name: string; brand: string | null };
 
+// Native form controls default to a light background regardless of the
+// page's dark-mode text color — without an explicit pairing here too,
+// dark mode renders light text on a light control.
+const FIELD_CLASSES =
+  "rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+
 export function LogModForm({
   vehicleId,
   vehicleModelId,
@@ -47,7 +53,7 @@ export function LogModForm({
           id="date_fitted"
           name="date_fitted"
           type="date"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
       </div>
 
@@ -61,7 +67,7 @@ export function LogModForm({
           type="number"
           step="0.01"
           inputMode="decimal"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
       </div>
 
@@ -75,7 +81,7 @@ export function LogModForm({
           type="number"
           step="0.5"
           inputMode="decimal"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
       </div>
 
@@ -87,7 +93,7 @@ export function LogModForm({
           id="notes"
           name="notes"
           rows={3}
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
       </div>
 

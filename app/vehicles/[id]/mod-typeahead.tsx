@@ -10,6 +10,14 @@ type ModResult = {
   mod_categories: { name: string } | null;
 };
 
+// Native form controls default to a light background regardless of the
+// page's dark-mode text color — without an explicit pairing here too,
+// dark mode renders light text on a light control. The results panel
+// below isn't a form control, but it's the same bug: a hardcoded light
+// background with the page's (dark-mode) inherited text color.
+const FIELD_CLASSES =
+  "rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+
 export function ModTypeahead({
   vehicleModelId,
   onSelect,
@@ -74,10 +82,10 @@ export function ModTypeahead({
         onFocus={() => results.length > 0 && setOpen(true)}
         placeholder="Search the catalogue…"
         autoComplete="off"
-        className="rounded border border-zinc-300 px-3 py-2 text-sm"
+        className={FIELD_CLASSES}
       />
       {open && (
-        <ul className="absolute top-full z-10 mt-1 w-full rounded border border-zinc-300 bg-white shadow-sm">
+        <ul className="absolute top-full z-10 mt-1 w-full rounded border border-zinc-300 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
           {results.length === 0 ? (
             <li className="px-3 py-2 text-sm text-zinc-500">No matches.</li>
           ) : (
@@ -91,7 +99,7 @@ export function ModTypeahead({
                     setResults([]);
                     setOpen(false);
                   }}
-                  className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-zinc-50"
+                  className="flex w-full flex-col items-start px-3 py-2 text-left text-sm text-zinc-900 hover:bg-zinc-50 dark:text-zinc-100 dark:hover:bg-zinc-800"
                 >
                   <span className="font-medium">
                     {mod.brand ? `${mod.brand} ` : ""}

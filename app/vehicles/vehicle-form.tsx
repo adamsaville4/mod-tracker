@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import type { VehicleActionState } from "./actions";
+import { getPlateYearOptions } from "@/lib/uk-plate-year";
 
 type Model = {
   id: string;
@@ -9,6 +10,14 @@ type Model = {
   model: string;
   generation: string | null;
 };
+
+// Native form controls (select popups included) default to a light
+// background regardless of the page's dark-mode text color — left
+// alone, that's a light background with light text. Set both
+// explicitly, in sync.
+const FIELD_CLASSES =
+  "rounded border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100";
+const OPTION_CLASSES = "bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100";
 
 export function VehicleForm({
   models,
@@ -28,6 +37,7 @@ export function VehicleForm({
   };
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  const plateYearOptions = getPlateYearOptions();
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -44,13 +54,13 @@ export function VehicleForm({
           name="model_id"
           defaultValue={defaultValues?.model_id ?? ""}
           required
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         >
-          <option value="" disabled>
+          <option value="" disabled className={OPTION_CLASSES}>
             Select a model…
           </option>
           {models.map((m) => (
-            <option key={m.id} value={m.id}>
+            <option key={m.id} value={m.id} className={OPTION_CLASSES}>
               {m.make} {m.model}
               {m.generation ? ` (${m.generation})` : ""}
             </option>
@@ -67,7 +77,7 @@ export function VehicleForm({
           name="nickname"
           defaultValue={defaultValues?.nickname ?? ""}
           placeholder="e.g. The Beast"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
+          className={FIELD_CLASSES}
         />
       </div>
 
@@ -75,15 +85,21 @@ export function VehicleForm({
         <label htmlFor="year" className="text-sm font-medium">
           Year (optional)
         </label>
-        <input
+        <select
           id="year"
           name="year"
-          type="number"
-          inputMode="numeric"
           defaultValue={defaultValues?.year ?? ""}
-          placeholder="e.g. 2016"
-          className="rounded border border-zinc-300 px-3 py-2 text-sm"
-        />
+          className={FIELD_CLASSES}
+        >
+          <option value="" className={OPTION_CLASSES}>
+            Year (optional)
+          </option>
+          {plateYearOptions.map((opt) => (
+            <option key={opt.label} value={opt.year} className={OPTION_CLASSES}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
