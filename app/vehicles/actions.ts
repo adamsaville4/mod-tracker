@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/slug";
+import { sanitizeHandle } from "@/lib/social-handle";
 
 export type VehicleActionState = { error?: string } | undefined;
 
@@ -15,6 +16,35 @@ function parseYear(raw: FormDataEntryValue | null): number | null {
   return Number.isInteger(year) ? year : null;
 }
 
+type SocialHandles = {
+  instagram_handle: string | null;
+  tiktok_handle: string | null;
+  x_handle: string | null;
+};
+
+function parseSocialHandles(formData: FormData): SocialHandles | { error: string } {
+  const instagram = sanitizeHandle(
+    String(formData.get("instagram_handle") ?? ""),
+    "Instagram handle"
+  );
+  if ("error" in instagram) return { error: instagram.error };
+
+  const tiktok = sanitizeHandle(
+    String(formData.get("tiktok_handle") ?? ""),
+    "TikTok handle"
+  );
+  if ("error" in tiktok) return { error: tiktok.error };
+
+  const x = sanitizeHandle(String(formData.get("x_handle") ?? ""), "X handle");
+  if ("error" in x) return { error: x.error };
+
+  return {
+    instagram_handle: instagram.value,
+    tiktok_handle: tiktok.value,
+    x_handle: x.value,
+  };
+}
+
 export async function createVehicle(
   _prevState: VehicleActionState,
   formData: FormData
@@ -25,6 +55,11 @@ export async function createVehicle(
 
   if (!modelId) {
     return { error: "Choose a model." };
+  }
+
+  const handles = parseSocialHandles(formData);
+  if ("error" in handles) {
+    return { error: handles.error };
   }
 
   const supabase = await createClient();
@@ -56,7 +91,14 @@ export async function createVehicle(
 
     const { data, error } = await supabase
       .from("vehicles")
-      .insert({ owner_id: user.id, model_id: modelId, nickname, year, slug })
+      .insert({
+        owner_id: user.id,
+        model_id: modelId,
+        nickname,
+        year,
+        slug,
+        ...handles,
+      })
       .select("id")
       .single();
 
@@ -91,13 +133,18 @@ export async function updateVehicle(
     return { error: "Choose a model." };
   }
 
+  const handles = parseSocialHandles(formData);
+  if ("error" in handles) {
+    return { error: handles.error };
+  }
+
   const supabase = await createClient();
 
   // Slug is intentionally left untouched on edit — it's stable once
   // created so shared public build-log URLs don't break.
   const { error } = await supabase
     .from("vehicles")
-    .update({ model_id: modelId, nickname, year })
+    .update({ model_id: modelId, nickname, year, ...handles })
     .eq("id", id);
 
   if (error) {

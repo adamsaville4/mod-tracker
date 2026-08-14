@@ -398,31 +398,40 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          instagram_handle: string | null
           model_id: string
           nickname: string | null
           owner_id: string
           slug: string
+          tiktok_handle: string | null
           updated_at: string | null
+          x_handle: string | null
           year: number | null
         }
         Insert: {
           created_at?: string | null
           id?: string
+          instagram_handle?: string | null
           model_id: string
           nickname?: string | null
           owner_id: string
           slug: string
+          tiktok_handle?: string | null
           updated_at?: string | null
+          x_handle?: string | null
           year?: number | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          instagram_handle?: string | null
           model_id?: string
           nickname?: string | null
           owner_id?: string
           slug?: string
+          tiktok_handle?: string | null
           updated_at?: string | null
+          x_handle?: string | null
           year?: number | null
         }
         Relationships: [

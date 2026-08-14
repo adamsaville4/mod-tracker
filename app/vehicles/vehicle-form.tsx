@@ -34,6 +34,9 @@ export function VehicleForm({
     model_id?: string;
     nickname?: string;
     year?: number | null;
+    instagram_handle?: string | null;
+    tiktok_handle?: string | null;
+    x_handle?: string | null;
   };
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
@@ -100,6 +103,45 @@ export function VehicleForm({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="instagram_handle" className="text-sm font-medium">
+          Instagram (optional)
+        </label>
+        <input
+          id="instagram_handle"
+          name="instagram_handle"
+          defaultValue={defaultValues?.instagram_handle ?? ""}
+          placeholder="yourhandle"
+          className={FIELD_CLASSES}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="tiktok_handle" className="text-sm font-medium">
+          TikTok (optional)
+        </label>
+        <input
+          id="tiktok_handle"
+          name="tiktok_handle"
+          defaultValue={defaultValues?.tiktok_handle ?? ""}
+          placeholder="yourhandle"
+          className={FIELD_CLASSES}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="x_handle" className="text-sm font-medium">
+          X (optional)
+        </label>
+        <input
+          id="x_handle"
+          name="x_handle"
+          defaultValue={defaultValues?.x_handle ?? ""}
+          placeholder="yourhandle"
+          className={FIELD_CLASSES}
+        />
       </div>
 
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}

@@ -19,7 +19,7 @@ const getBuild = cache(async (username: string, slug: string) => {
   const { data: vehicle } = await supabase
     .from("vehicles")
     .select(
-      "id, nickname, year, slug, vehicle_models(make, model, generation)"
+      "id, nickname, year, slug, instagram_handle, tiktok_handle, x_handle, vehicle_models(make, model, generation)"
     )
     .eq("owner_id", profile.id)
     .eq("slug", slug)
@@ -57,6 +57,97 @@ function formatDate(value: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+// No icon library is installed — small inline glyphs, generic
+// representations rather than the platforms' actual brand marks.
+function InstagramIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function TikTokIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 18V5l8-2v11" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="17" cy="14" r="3" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="4" y1="4" x2="20" y2="20" />
+      <line x1="20" y1="4" x2="4" y2="20" />
+    </svg>
+  );
+}
+
+type SocialLink = { label: string; href: string; Icon: () => React.JSX.Element };
+
+function getSocialLinks(vehicle: {
+  instagram_handle: string | null;
+  tiktok_handle: string | null;
+  x_handle: string | null;
+}): SocialLink[] {
+  const links: (SocialLink | null)[] = [
+    vehicle.instagram_handle
+      ? {
+          label: "Instagram",
+          href: `https://instagram.com/${vehicle.instagram_handle}`,
+          Icon: InstagramIcon,
+        }
+      : null,
+    vehicle.tiktok_handle
+      ? {
+          label: "TikTok",
+          href: `https://tiktok.com/@${vehicle.tiktok_handle}`,
+          Icon: TikTokIcon,
+        }
+      : null,
+    vehicle.x_handle
+      ? { label: "X", href: `https://x.com/${vehicle.x_handle}`, Icon: XIcon }
+      : null,
+  ];
+
+  return links.filter((link): link is SocialLink => link !== null);
 }
 
 export async function generateMetadata({
@@ -97,6 +188,7 @@ export default async function BuildLogPage({
   const { vehicle, mods } = build;
   const model = vehicle.vehicle_models;
   const title = buildTitle(vehicle.nickname, model);
+  const socialLinks = getSocialLinks(vehicle);
 
   const totalCost = mods.reduce((sum, m) => sum + (m.cost_paid ?? 0), 0);
   const totalHours = mods.reduce((sum, m) => sum + (m.install_hours ?? 0), 0);
@@ -121,6 +213,22 @@ export default async function BuildLogPage({
             @{username}
           </span>
         </p>
+        {socialLinks.length > 0 && (
+          <div className="mt-2 flex gap-3">
+            {socialLinks.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+              >
+                <Icon />
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       {mods.length > 0 && (

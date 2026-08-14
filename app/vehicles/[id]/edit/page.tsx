@@ -21,7 +21,9 @@ export default async function EditVehiclePage({
 
   const { data: vehicle } = await supabase
     .from("vehicles")
-    .select("id, model_id, nickname, year, owner_id")
+    .select(
+      "id, model_id, nickname, year, owner_id, instagram_handle, tiktok_handle, x_handle"
+    )
     .eq("id", id)
     .single();
 
@@ -47,6 +49,9 @@ export default async function EditVehiclePage({
           model_id: vehicle.model_id,
           nickname: vehicle.nickname ?? "",
           year: vehicle.year,
+          instagram_handle: vehicle.instagram_handle,
+          tiktok_handle: vehicle.tiktok_handle,
+          x_handle: vehicle.x_handle,
         }}
       />
       <form action={deleteVehicle}>
