@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { logMod } from "./actions";
 import { LogModForm } from "./log-mod-form";
+import { LoggedModItem } from "./logged-mod-item";
 import { RequestModForm } from "./request-mod-form";
 
 export default async function VehicleDetailPage({
@@ -34,7 +36,7 @@ export default async function VehicleDetailPage({
   const { data: loggedMods } = await supabase
     .from("vehicle_mods")
     .select(
-      "id, date_fitted, cost_paid, install_hours, notes, mods(name, brand)"
+      "id, date_fitted, cost_paid, install_hours, notes, mods(id, name, brand)"
     )
     .eq("vehicle_id", id)
     .order("date_fitted", { ascending: false, nullsFirst: false });
@@ -91,23 +93,12 @@ export default async function VehicleDetailPage({
         {loggedMods && loggedMods.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {loggedMods.map((entry) => (
-              <li
+              <LoggedModItem
                 key={entry.id}
-                className="rounded border border-zinc-200 px-4 py-3"
-              >
-                <p className="font-medium">
-                  {entry.mods?.brand ? `${entry.mods.brand} ` : ""}
-                  {entry.mods?.name}
-                </p>
-                <p className="text-sm text-zinc-600">
-                  {entry.date_fitted ?? "No date"}
-                  {entry.cost_paid ? ` · £${entry.cost_paid}` : ""}
-                  {entry.install_hours ? ` · ${entry.install_hours}h` : ""}
-                </p>
-                {entry.notes && (
-                  <p className="mt-1 text-sm text-zinc-600">{entry.notes}</p>
-                )}
-              </li>
+                entry={entry}
+                vehicleId={vehicle.id}
+                vehicleModelId={model?.id ?? ""}
+              />
             ))}
           </ul>
         ) : (
@@ -118,7 +109,11 @@ export default async function VehicleDetailPage({
       <div className="flex flex-col gap-3">
         <h2 className="text-lg font-medium">Log a mod</h2>
         {model?.id && (
-          <LogModForm vehicleId={vehicle.id} vehicleModelId={model.id} />
+          <LogModForm
+            vehicleId={vehicle.id}
+            vehicleModelId={model.id}
+            action={logMod}
+          />
         )}
       </div>
 

@@ -82,6 +82,78 @@ export async function logMod(
   redirect(`/vehicles/${vehicleId}`);
 }
 
+export async function updateVehicleMod(
+  _prevState: LogModActionState,
+  formData: FormData
+): Promise<LogModActionState> {
+  const id = String(formData.get("id") ?? "");
+  const vehicleId = String(formData.get("vehicle_id") ?? "");
+  const modId = String(formData.get("mod_id") ?? "");
+  const dateFitted = String(formData.get("date_fitted") ?? "").trim() || null;
+  const costPaid = parseNumber(formData.get("cost_paid"));
+  const installHours = parseNumber(formData.get("install_hours"));
+  const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  if (!id || !vehicleId || !modId) {
+    return { error: "Search for and select a mod first." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: vehicle } = await supabase
+    .from("vehicles")
+    .select("model_id, owner_id")
+    .eq("id", vehicleId)
+    .single();
+
+  if (!vehicle || vehicle.owner_id !== user.id) {
+    return { error: "Vehicle not found." };
+  }
+
+  // Belt-and-braces: the typeahead already filters by fitment, but a
+  // resubmitted form shouldn't be able to attach an incompatible mod.
+  const { data: fitment } = await supabase
+    .from("mod_fitment")
+    .select("mod_id")
+    .eq("mod_id", modId)
+    .eq("vehicle_model_id", vehicle.model_id)
+    .maybeSingle();
+
+  if (!fitment) {
+    return { error: "That mod doesn't fit this vehicle." };
+  }
+
+  // Silent overwrite by design — no edit history, no "edited" indicator.
+  const { error } = await supabase
+    .from("vehicle_mods")
+    .update({
+      mod_id: modId,
+      date_fitted: dateFitted,
+      cost_paid: costPaid,
+      install_hours: installHours,
+      notes,
+    })
+    .eq("id", id);
+
+  if (error) {
+    // 23505 = unique_violation on (vehicle_id, mod_id) — e.g. editing this
+    // entry to point at a mod already logged elsewhere on this vehicle.
+    if (error.code === "23505") {
+      return { error: "You've already logged this mod for this vehicle." };
+    }
+    return { error: "Something went wrong. Please try again." };
+  }
+
+  redirect(`/vehicles/${vehicleId}`);
+}
+
 export async function requestMod(
   _prevState: RequestModActionState,
   formData: FormData
